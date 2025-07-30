@@ -11,6 +11,8 @@ const Upload = () => {
   const [location, setLocation] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [sounds, setSounds] = useState([]);
+  const [challenges, setChallenges] = useState([]);
+const [selectedChallenge, setSelectedChallenge] = useState("");
   const [selectedSound, setSelectedSound] = useState(null);
 const [dragOver, setDragOver] = useState(false);
   const [videoFile, setVideoFile] = useState(null);
@@ -104,7 +106,17 @@ const handleSoundDragLeave = () => {
     };
     fetchSounds();
   }, []);
+useEffect(() => {
+  const fetchChallenges = async () => {
+    const { data, error } = await supabase
+      .from("challenges")
+      .select("id, name")
+      .order("created_at", { ascending: false });
 
+    if (!error) setChallenges(data);
+  };
+  fetchChallenges();
+}, []);
   useEffect(() => {
     const fetchLocation = () => {
       if (!navigator.geolocation) return;
