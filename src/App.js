@@ -19,6 +19,8 @@ import UsernameWithBadge from './UsernameWithBadge';
 import EarnPage from './EarnPage';
 import WithdrawalRequestPage from './WithdrawalRequestPage';
 import ContactUs from './ContactUs';
+import ChallengePage from './ChallengePage';
+import ChallengesPage from './ChallengesPage';
 function App() {
   const [user, setUser] = useState(null);
 
@@ -38,6 +40,8 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/challenges" element={<ChallengesPage />} />
+      <Route path="/challenge/:id" element={<ChallengePage />} />
       <Route path='/contact' element={<ContactUs />} />
       <Route path="/withdraw" element={<WithdrawalRequestPage />} />
       <Route path="/earn" element={<EarnPage />} />
