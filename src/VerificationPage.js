@@ -81,11 +81,14 @@ const VerificationPage = () => {
         <option value="creator">Creator (Blue Badge - 8680 RWF / $6)</option>
         <option value="pro">Pro (Gold Badge - 13,020 RWF / $9)</option>
       </select>
-
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 mb-4 rounded">
+          <p className="font-semibold">🇷🇼 MoMoPay for Rwandans:</p>
+          <p className="text-sm mt-1">Dial: <strong>*182*8*1*733014#</strong></p>
+          <p className="text-sm mt-1">Names: <strong>Aime medard</strong></p>
+        </div>
        <div className="bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 mb-4 rounded">
           <p className="font-semibold">🌍 If you are outside Rwanda:</p>
           <p className="text-sm mt-1">Send to MTN: <strong>(+250) 791 231 993</strong></p>
-          <p className="text-sm mt-1">Amount: <strong>4340 RWF or $3</strong></p>
         <p className="text-sm mt-1">Names: <strong>Niyokwizerwa Aime medard</strong></p>
         </div>
 

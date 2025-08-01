@@ -271,7 +271,7 @@ const ReelCard = ({ reel }) => {
             loop
             playsInline
             onClick={togglePlayPause}
-            className="aspect-[9/16] h-[80vh] object-contain bg-black"
+            className="aspect-[9/16] h-[82vh] object-contain bg-black"
           />
 
           {/* ... rest of your JSX for comments, likes, and sharing (unchanged) ... */}
