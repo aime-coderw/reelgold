@@ -4,7 +4,6 @@ import { FaHeart, FaComment, FaShare, FaWhatsapp, FaFacebookF, FaTwitter, FaLink
 import EmojiPicker from 'emoji-picker-react';
 import { supabase } from './supabase';
 import { parseMentions } from './parseMentions';
-
 const formatTimeAgo = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
@@ -227,7 +226,7 @@ const ReelCard = ({ reel }) => {
   };
 
   const handleShare = (platform) => {
-    const url = `${window.location.origin}/reel/${reel.id}`;
+    const url = `https://reelgold.vercel.app/reel/${reel.id}`;
     const text = encodeURIComponent("Check out this reel on ReelGold!");
 
     switch (platform) {
