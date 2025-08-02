@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabase'; 
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+
 import ReelCard from './ReelCard'; 
 import JoinChallengeButton from './JoinChallengeButton';
 import BottomNav from "./BottomNav";
@@ -12,6 +13,7 @@ const isValidUUID = (str) => {
 
 const ChallengePage = () => {
   const { id: slug } = useParams(); // param named 'id' assumed in route
+  const navigate = useNavigate();
   const [challenge, setChallenge] = useState(null);
   const [reels, setReels] = useState([]);
   const [loadingChallenge, setLoadingChallenge] = useState(true);
@@ -54,31 +56,46 @@ const ChallengePage = () => {
 
       setChallenge(challengeData);
 
-      const { data: reelsData, error: reelsError } = await supabase
-        .from('reels')
-        .select('*')
-        .eq('challenge', challengeData.id)
-        .order('created_at', { ascending: false });
+              const { data: reelChallengeLinks, error: linkError } = await supabase
+          .from('reel_challenges')
+          .select('reel_id')
+          .eq('challenge_id', challengeData.id);
 
-      if (reelsError) {
-        throw new Error(reelsError.message);
+        if (linkError) throw new Error(linkError.message);
+
+        const reelIds = reelChallengeLinks.map(link => link.reel_id);
+
+        if (reelIds.length > 0) {
+          const { data: reelsData, error: reelsError } = await supabase
+            .from('reels')
+            .select('*')
+            .in('id', reelIds)
+            .order('created_at', { ascending: false });
+
+          if (reelsError) throw new Error(reelsError.message);
+
+          setReels(reelsData || []);
+        } else {
+          setReels([]);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoadingChallenge(false);
+        setLoadingReels(false);
       }
+    };
 
-      setReels(reelsData || []);
-    } catch (err) {
-      setError('Error: ' + err.message);
-      setReels([]);
-      setChallenge(null);
-    } finally {
-      setLoadingChallenge(false);
-      setLoadingReels(false);
-    }
+    fetchChallengeAndReels();
+  }, [slug]);
+
+  const openScrollable = (reelId) => {
+    navigate(`/reel/${reelId}`);
   };
 
-  fetchChallengeAndReels();
-}, [slug]);
-
-
+  if (loadingChallenge) return <p className="text-gray-400">Loading challenge...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
+  if (!challenge) return <p className="text-gray-400">Challenge not found.</p>;
   if (loadingChallenge) return <p className="text-gray-400">Loading challenge...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
   if (!challenge) return <p className="text-gray-400">Challenge not found.</p>;
@@ -89,15 +106,27 @@ const ChallengePage = () => {
         {challenge.title.toUpperCase()}
       </h1>
       <JoinChallengeButton challengeId={challenge.id} />
-
-      {loadingReels ? (
+      <p>      We Tried</p>
+     {loadingReels ? (
         <p className="text-gray-400">Loading reels...</p>
       ) : reels.length === 0 ? (
-        <p className="text-gray-400">No reels yet in this challenge.</p>
+        <p className="text-gray-400 text-center">No reels yet in this challenge.</p>
       ) : (
-        <div className="grid gap-4">
+       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 w-full justify-center">
           {reels.map((reel) => (
-            <ReelCard key={reel.id} reel={reel} />
+            <div
+              key={reel.id}
+              onClick={() => openScrollable(reel.id)}
+              className="relative w-full max-w-[180px] aspect-[9/16] rounded-lg overflow-hidden bg-gray-900 mx-auto shadow-md hover:scale-105 transition-transform"
+            >
+              <video
+                src={reel.video_url}
+                className="w-full h-55 object-cover rounded-lg"
+                muted
+                loop
+                playsInline
+              />
+            </div>
           ))}
         </div>
       )}
@@ -109,4 +138,4 @@ const ChallengePage = () => {
   );
 };
 
-export default ChallengePage;
+export default ChallengePage;  
