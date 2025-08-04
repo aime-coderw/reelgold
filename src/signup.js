@@ -9,6 +9,8 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
+  const [agreeTerms, setAgreeTerms] = useState(false);
+
 
 const handleSignup = async (e) => {
   e.preventDefault();
@@ -95,13 +97,37 @@ const handleSignup = async (e) => {
             required
           />
         </div>
+<div className="flex items-start mb-4">
+  <input
+    type="checkbox"
+    id="agreeTerms"
+    className="mt-1 mr-2"
+    checked={agreeTerms}
+    onChange={(e) => setAgreeTerms(e.target.checked)}
+  />
+  <label htmlFor="agreeTerms" className="text-sm text-gray-700">
+    I agree to the{' '}
+    <a
+      href="/terms"
+      className="text-indigo-600 hover:underline"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Terms & Regulations
+    </a>
+  </label>
+</div>
 
-        <button
-          type="submit"
-          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 rounded"
-        >
-          Sign Up
-        </button>
+       <button
+  type="submit"
+  disabled={!agreeTerms}
+  className={`w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 rounded ${
+    !agreeTerms ? 'opacity-50 cursor-not-allowed' : ''
+  }`}
+>
+  Sign Up
+</button>
+
       </form>
 
       {/* Contact link placed below the form */}

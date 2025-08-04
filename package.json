@@ -8,6 +8,7 @@
     "@capacitor/core": "^7.4.2",
     "@ffmpeg/core": "^0.12.10",
     "@ffmpeg/ffmpeg": "^0.11.6",
+    "@fortawesome/fontawesome-free": "^7.0.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@supabase/supabase-js": "^2.52.0",
     "@testing-library/dom": "^10.4.0",

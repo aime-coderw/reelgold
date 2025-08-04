@@ -21,6 +21,10 @@ import WithdrawalRequestPage from './WithdrawalRequestPage';
 import ContactUs from './ContactUs';
 import ChallengePage from './ChallengePage';
 import ChallengesPage from './ChallengesPage';
+import BlogHome from './BlogHome';
+import BlogPost from './BlogPost';
+import AddPost from './AddPost';
+import Terms from './Terms';
 function App() {
   const [user, setUser] = useState(null);
 
@@ -40,6 +44,11 @@ function App() {
 
   return (
     <Routes>
+      <Route path='/terms' element={<Terms />} />
+      <Route path="/add-post" element={<AddPost />} />
+      <Route path="/blog" element={<BlogHome />} />
+<Route path="/blog/:id" element={<BlogPost />} />
+<Route path="/blog/add" element={<AddPost />} />
       <Route path="/challenges" element={<ChallengesPage />} />
       <Route path="/challenge/:id" element={<ChallengePage />} />
       <Route path='/contact' element={<ContactUs />} />
