@@ -86,7 +86,7 @@ export default function BlogPost() {
           <h1 className="text-xl font-bold text-white">ReelGold Blog</h1>
         </div>
         <a
-          href="https://github.com/aime-coderw/reelgold/releases/download/AndroidApp/app-release.apk"
+          href="https://github.com/aime-coderw/reelgold/releases/download/AndroidApp/reelgold.apk"
           className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm"
         >
           Download App

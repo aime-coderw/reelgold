@@ -32,7 +32,7 @@ export default function BlogHome() {
           <h1 className="text-2xl font-bold">ReelGold Blog</h1>
         </div>
         <a
-          href="https://github.com/aime-coderw/reelgold/releases/download/AndroidApp/app-release.apk"
+          href="https://github.com/aime-coderw/reelgold/releases/download/AndroidApp/reelgold.apk"
           target="_blank"
           rel="noopener noreferrer"
           className="bg-yellow-400 hover:bg-yellow-500 text-black font-medium px-4 py-2 rounded-lg shadow transition"

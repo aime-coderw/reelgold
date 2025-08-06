@@ -111,36 +111,46 @@ const ReelCard = ({ reel }) => {
   }, [reel?.user_id]);
 
   // ✅ Record view
-  useEffect(() => {
-    const video = videoRef.current;
+ // ✅ Record view + Pause others + Stop on scroll out
+useEffect(() => {
+  const video = videoRef.current;
 
-    const observer = new IntersectionObserver(
-      async ([entry]) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.9 && !viewed) {
-          await supabase.rpc('increment_view_count', { reel_id: reel.id });
-          setViewed(true);
-
-          if (!sessionStorage.getItem(`viewed_${reel.id}`)) {
-            await supabase.from('views').insert({
-              reel_id: reel.id,
-              user_id: user?.id || null,
-            });
-            sessionStorage.setItem(`viewed_${reel.id}`, 'true');
+  const observer = new IntersectionObserver(
+    async ([entry]) => {
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.9 && !viewed) {
+        // ✅ Pause all other videos
+        document.querySelectorAll('video').forEach((v) => {
+          if (v !== video) {
+            v.pause();
+            v.currentTime = 0;
           }
+        });
 
-          video?.play().catch(() => {});
-          setPlaying(true);
-        } else {
-          video?.pause();
-          setPlaying(false);
+        await supabase.rpc('increment_view_count', { reel_id: reel.id });
+        setViewed(true);
+
+        if (!sessionStorage.getItem(`viewed_${reel.id}`)) {
+          await supabase.from('views').insert({
+            reel_id: reel.id,
+            user_id: user?.id || null,
+          });
+          sessionStorage.setItem(`viewed_${reel.id}`, 'true');
         }
-      },
-      { threshold: [0.9] }
-    );
 
-    if (video) observer.observe(video);
-    return () => video && observer.unobserve(video);
-  }, [reel.id, viewed, user]);
+        video?.play().catch(() => {});
+        setPlaying(true);
+      } else {
+        video?.pause();
+        video.currentTime = 0; // ✅ Optional: reset to beginning
+        setPlaying(false);
+      }
+    },
+    { threshold: [0.9] }
+  );
+
+  if (video) observer.observe(video);
+  return () => video && observer.unobserve(video);
+}, [reel.id, viewed, user]);
 
   // ✅ Likes logic
   useEffect(() => {
@@ -259,6 +269,21 @@ const ReelCard = ({ reel }) => {
       setPlaying(true);
     }
   };
+// ✅ Pause video if tab becomes inactive
+useEffect(() => {
+  const handleVisibilityChange = () => {
+    const video = videoRef.current;
+    if (document.hidden && video && !video.paused) {
+      video.pause();
+      setPlaying(false);
+    }
+  };
+
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  return () => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+  };
+}, []);
 
   return (
     <div className="flex justify-center items-start h-screen bg-black overflow-hidden">

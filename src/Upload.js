@@ -208,18 +208,21 @@ const Upload = () => {
       }
 
       // Check if user joined challenge before uploading
-      const { data: joined, error: joinCheckError } = await supabase
-        .from("joined_challenges")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("challenge_id", selectedChallenge)
-        .maybeSingle();
+      // ✅ NEW: Only check joined challenge IF one is selected
+if (selectedChallenge) {
+  const { data: joined, error: joinCheckError } = await supabase
+    .from("joined_challenges")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("challenge_id", selectedChallenge)
+    .maybeSingle();
 
-      if (!joined) {
-        alert("You must join the challenge before uploading to it.");
-        setUploading(false);
-        return;
-      }
+  if (!joined) {
+    alert("You must join the challenge before uploading to it.");
+    setUploading(false);
+    return;
+  }
+}
 
       const {
         data: { publicUrl },
@@ -340,29 +343,25 @@ const Upload = () => {
               />
                </div>
               {/* Challenge dropdown inside the drop area */}
-              {userChallengeOptions.length > 0 && (
-                <div className="mt-4">
-                  <label
-                    htmlFor="challenge-select"
-                    className="block mb-1 text-white"
-                  >
-                    Upload to Challenge
-                  </label>
-                  <select
-                    id="challenge-select"
-                    className="w-full p-1 bg-gray-800 rounded text-white"
-                    value={selectedChallenge}
-                    onChange={(e) => setSelectedChallenge(e.target.value)}
-                  >
-                    <option value="">-- Select Challenge --</option>
-                    {userChallengeOptions.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+             <div className="mt-4">
+  <label htmlFor="challenge-select" className="block mb-1 text-white">
+    Upload to Challenge (optional)
+  </label>
+  <select
+    id="challenge-select"
+    className="w-full p-1 bg-gray-800 rounded text-white"
+    value={selectedChallenge}
+    onChange={(e) => setSelectedChallenge(e.target.value)}
+  >
+    <option value="">None</option>
+    {userChallengeOptions.map((c) => (
+      <option key={c.id} value={c.id}>
+        {c.title}
+      </option>
+    ))}
+  </select>
+</div>
+
             
 
             <div className="max-w-xl mx-auto space-y-3">
