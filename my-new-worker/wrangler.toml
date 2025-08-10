@@ -1,0 +1,7 @@
+name = "my-new-worker"
+main = "src/index.js"
+compatibility_date = "2025-08-10"
+
+r2_buckets = [
+  { binding = "MY_BUCKET", bucket_name = "reelgold-videos" }
+]

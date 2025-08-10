@@ -164,114 +164,121 @@ const Upload = () => {
   }, []);
 
   const handleUploadReel = async () => {
-    if (!videoFile || !caption)
-      return alert("Please select a video and add a caption");
-    setUploading(true);
+  if (!videoFile || !caption)
+    return alert("Please select a video and add a caption");
+  setUploading(true);
 
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-      if (!user) throw new Error("User not authenticated");
+    if (!user) throw new Error("User not authenticated");
 
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("user_name, profile_picture")
-        .eq("id", user.id)
-        .single();
+    // Create FormData and append the video file with field name "file"
+    const formData = new FormData();
+    // You can rename the file here if you want unique names
+    const fileName = `${user.id}_${Date.now()}.${videoFile.name.split(".").pop()}`;
+    const renamedFile = new File([videoFile], fileName, { type: videoFile.type });
+    formData.append("file", renamedFile);
 
-      if (profileError || !profile)
-        throw new Error("Failed to fetch user profile");
+    // Upload to your Cloudflare Worker endpoint
+    const workerUploadUrl = "https://my-new-worker.aimemeddy25.workers.dev"; // Replace with your worker URL
+    const uploadRes = await fetch(workerUploadUrl, {
+      method: "POST",
+      body: formData,
+    });
 
-      const avatar = profile?.profile_picture || "/default-avatar.png";
+    if (!uploadRes.ok) {
+      const errorText = await uploadRes.text();
+      throw new Error("Upload failed: " + errorText);
+    }
 
-      const fileName = `${user.id}_${Date.now()}.${videoFile.name
-        .split(".")
-        .pop()}`;
-      const filePath = `videos/${fileName}`;
+    const uploadResponseText = await uploadRes.text();
+    console.log("Upload response:", uploadResponseText);
 
-      const { data: uploadUrl, error: signedError } = await supabase.storage
-        .from("reels")
-        .createSignedUploadUrl(filePath, 60);
+    // At this point, the file is uploaded to R2.
+    // The response contains file name. Construct public URL if you have a pattern or get it from Cloudflare dashboard.
 
-      if (signedError) throw new Error("Signed URL creation failed");
+    // Example: public URL assuming public access pattern:
+   const publicUrl = `https://pub-77e225bf1b884e29b0d4892fc831b2f8.r2.dev/${fileName}`;
+    // Replace YOUR_ACCOUNT_ID and user-videos with your actual account and bucket
 
-      const uploadRes = await fetch(uploadUrl.signedUrl, {
-        method: "PUT",
-        body: videoFile,
-      });
+    // Now insert metadata in Supabase 'reels' table
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("user_name, profile_picture")
+      .eq("id", user.id)
+      .single();
 
-      if (!uploadRes.ok) {
-        console.error(await uploadRes.text());
-        throw new Error("Video upload failed");
+    if (profileError || !profile)
+      throw new Error("Failed to fetch user profile");
+
+    const avatar = profile?.profile_picture || "/default-avatar.png";
+
+    // Check if user joined challenge before uploading
+    if (selectedChallenge) {
+      const { data: joined, error: joinCheckError } = await supabase
+        .from("joined_challenges")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("challenge_id", selectedChallenge)
+        .maybeSingle();
+
+      if (!joined) {
+        alert("You must join the challenge before uploading to it.");
+        setUploading(false);
+        return;
       }
+    }
 
-      // Check if user joined challenge before uploading
-      // ✅ NEW: Only check joined challenge IF one is selected
-if (selectedChallenge) {
-  const { data: joined, error: joinCheckError } = await supabase
-    .from("joined_challenges")
-    .select("*")
-    .eq("user_id", user.id)
-    .eq("challenge_id", selectedChallenge)
-    .maybeSingle();
+    const { data: insertReelData, error: insertError } = await supabase
+      .from("reels")
+      .insert([
+        {
+          video_url: publicUrl,
+          caption,
+          user_id: user.id,
+          user_name: profile.user_name,
+          user_avatar: avatar,
+          likes: 0,
+          location,
+          categories: selectedCategories,
+        },
+      ])
+      .select()
+      .single();
 
-  if (!joined) {
-    alert("You must join the challenge before uploading to it.");
-    setUploading(false);
-    return;
-  }
+   if (insertError) {
+  console.error("Insert reel error:", insertError);
+  throw insertError;
 }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("reels").getPublicUrl(filePath);
+    const reelId = insertReelData.id;
 
-      const { data: insertReelData, error: insertError } = await supabase
-        .from("reels")
+    if (selectedChallenge) {
+      const { error: challengeLinkError } = await supabase
+        .from("reel_challenges")
         .insert([
           {
-            video_url: publicUrl,
-            caption,
-            user_id: user.id,
-            user_name: profile.user_name,
-            user_avatar: avatar,
-            likes: 0,
-            location,
-            categories: selectedCategories,
+            reel_id: reelId,
+            challenge_id: selectedChallenge,
           },
-        ])
-        .select()
-        .single();
-
-      if (insertError) throw insertError;
-
-      const reelId = insertReelData.id;
-
-      // Insert into reel_challenges
-      if (selectedChallenge) {
-        const { error: challengeLinkError } = await supabase
-          .from("reel_challenges")
-          .insert([
-            {
-              reel_id: reelId,
-              challenge_id: selectedChallenge,
-            },
-          ]);
-        if (challengeLinkError) throw challengeLinkError;
-      }
-
-      alert("Video uploaded successfully!");
-      navigate("/home");
-    } catch (err) {
-      console.error("Upload error:", err);
-      alert("Upload failed: " + err.message);
-    } finally {
-      setUploading(false);
-      setUploadPercent(100);
+        ]);
+      if (challengeLinkError) throw challengeLinkError;
     }
-  };
+
+    alert("Video uploaded successfully!");
+    navigate("/home");
+  } catch (err) {
+    console.error("Upload error:", err);
+    alert("Upload failed: " + err.message);
+  } finally {
+    setUploading(false);
+    setUploadPercent(100);
+  }
+};
+
 
   const handleUploadSound = async () => {
     if (!soundFile || !title) return;

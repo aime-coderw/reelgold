@@ -36,7 +36,7 @@ const [agreeTerms, setAgreeTerms] = useState(false);
         .eq('user_id', user.id);
 
       const totalLikes = likesData?.length || 0;
-      const calculatedGolds = Math.floor(totalLikes / 200000);
+      const calculatedGolds = Math.floor(totalLikes / 20000);
 
       const badge = profileData.verification_badge?.replace('.png', '');
       const rates = { basic: 0.000006, creator: 0.00001, pro: 0.00002 };
@@ -80,7 +80,7 @@ const [agreeTerms, setAgreeTerms] = useState(false);
 
       <div className="text-center text-gray-700 space-y-1">
         <p><strong>Earnings:</strong> ${earnings}</p>
-        <p><strong>Golds:</strong> 🟡 {golds} (1 Gold = 200K likes)</p>
+        <p><strong>Golds:</strong> 🟡 {golds}</p>
         {golds < 5 && (
           <p className="text-red-600 text-sm">❌ You need at least 5 Golds to withdraw.</p>
         )}
