@@ -145,7 +145,7 @@ const [agreeTerms, setAgreeTerms] = useState(false);
       <label className="block mb-2 font-semibold">Choose Plan</label>
       <select className="border px-3 py-2 w-full mb-4" value={plan} onChange={e => setPlan(e.target.value)}>
         <option value="">-- Select Plan --</option>
-        <option value="basic">Basic (White Badge - 4340 RWF / $3)</option>
+        <option value="basic">Basic (White Badge - Free)</option>
         <option value="creator">Creator (Blue Badge - 8680 RWF / $6)</option>
         <option value="pro">Pro (Gold Badge - 13,020 RWF / $9)</option>
       </select>

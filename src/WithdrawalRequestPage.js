@@ -39,7 +39,7 @@ const [agreeTerms, setAgreeTerms] = useState(false);
       const calculatedGolds = Math.floor(totalLikes / 20000);
 
       const badge = profileData.verification_badge?.replace('.png', '');
-      const rates = { basic: 0.000006, creator: 0.00001, pro: 0.00002 };
+      const rates = { basic: 0.000002, creator: 0.00001, pro: 0.00002 };
       const rate = rates[badge] || 0;
       const earnings = views.length * rate;
 

@@ -7,17 +7,18 @@ const PromotePage = () => {
   const { id } = useParams();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [plan, setPlan] = useState(''); // ✅ Added state for plan
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!name || !phone) {
+    if (!name || !phone || !plan) {
       alert("Please fill in all fields.");
       return;
     }
 
     setLoading(true);
     const { error } = await supabase.from('promotion_requests').insert([
-      { reel_id: id, full_name: name, phone_number: phone },
+      { reel_id: id, full_name: name, phone_number: phone, plan },
     ]);
     setLoading(false);
 
@@ -25,6 +26,7 @@ const PromotePage = () => {
       alert('✅ Promotion request submitted! Please complete payment.');
       setName('');
       setPhone('');
+      setPlan(''); // ✅ Reset after submit
     } else {
       alert('❌ Error submitting promotion request.');
       console.error(error);
@@ -36,6 +38,7 @@ const PromotePage = () => {
       <div className="bg-white max-w-md w-full p-6 rounded-xl shadow-xl text-black">
         <h2 className="text-2xl font-bold mb-4 text-center text-yellow-600">Promote Your Reel</h2>
 
+        {/* Full Name */}
         <div className="mb-4">
           <label className="block text-sm font-semibold mb-1">Full Name</label>
           <input
@@ -47,6 +50,7 @@ const PromotePage = () => {
           />
         </div>
 
+        {/* Phone Number */}
         <div className="mb-4">
           <label className="block text-sm font-semibold mb-1">Phone Number</label>
           <input
@@ -58,28 +62,38 @@ const PromotePage = () => {
           />
         </div>
 
+        {/* Promotion Plan */}
+        <label className="block mb-2 font-semibold">Choose Promotion Plan</label>
+        <select
+          className="border px-3 py-2 w-full mb-4"
+          value={plan}
+          onChange={e => setPlan(e.target.value)}
+        >
+          <option value="">-- Select Plan --</option>
+          <option value="basic">1 Week (4340 RWF/$3)</option>
+          <option value="creator">2 Weeks (8140 RWF/$5.5)</option>
+          <option value="pro">3 Weeks (11840 RWF/$8)</option>
+          <option value="monthly">1 Month (14800 RWF/$10)</option>
+        </select>
+
+        {/* Payment Instructions */}
         <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 mb-4 rounded">
           <p className="font-semibold">🇷🇼 MoMoPay for Rwandans:</p>
-          <p className="text-sm mt-1">Dial: <strong>*182*8*1*733014*4340#</strong></p>
+          <p className="text-sm mt-1">Dial: <strong>*182*8*1*733014#</strong></p>
           <p className="text-sm mt-1">Names: <strong>Aime medard</strong></p>
         </div>
 
         <div className="bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 mb-4 rounded">
           <p className="font-semibold">🌍 If you are outside Rwanda:</p>
           <p className="text-sm mt-1">Send to MTN: <strong>(+250) 791 231 993</strong></p>
-        <p className="text-sm mt-1">Names: <strong>Niyokwizerwa Aime medard</strong></p>
+          <p className="text-sm mt-1">Names: <strong>Niyokwizerwa Aime medard</strong></p>
         </div>
-        <div className="bg-yellow-50 border-l-4 border-green-400 text-green-800 p-4 mb-4 rounded">
-          <p className="text-sm mt-1">Amount:</p> 
-          <p><strong>4340 RWF/$3 for 1 Week</strong></p>
-          <p><strong>8140 RWF/$5.5 for  2Week</strong></p>
-          <p><strong>11840 RWF/$8 for 3 Week</strong></p>
-          <p><strong>14800 RWF/$10 for 1 Month</strong></p>
-          </div>
+
         <p className="text-sm text-gray-600 mb-4">
           ⚠️ Your request will be automatically deleted if payment is not made within <strong>48 hours</strong>.
         </p>
 
+        {/* Submit Button */}
         <button
           onClick={handleSubmit}
           disabled={loading}
@@ -90,10 +104,11 @@ const PromotePage = () => {
           {loading ? 'Submitting...' : 'Submit Promotion Request'}
         </button>
       </div>
+
       {/* Bottom Navigation */}
-            <div className="h-[0vh] bg-[#121212] border-t border-gray-700">
-              <BottomNav />
-          </div>
+      <div className="h-[0vh] bg-[#121212] border-t border-gray-700">
+        <BottomNav />
+      </div>
     </div>
   );
 };

@@ -37,7 +37,7 @@ const AdminPanel = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('promotion_requests')
-      .select('id, reel_id, full_name, phone_number, is_approved')
+      .select('id, reel_id, full_name, phone_number, is_approved, plan')
       .order('created_at', { ascending: false });
 
     if (!error) setPromotionRequests(data);
@@ -192,6 +192,7 @@ const handleApproveWithdraw = async (id) => {
                         <div>
                           <p><strong>Name:</strong> {req.full_name}</p>
                           <p><strong>Phone:</strong> {req.phone_number}</p>
+                          <p><strong>Plan:</strong> {req.plan}</p>
                           <p className="text-sm text-gray-500"><strong>Reel ID:</strong> {req.reel_id}</p>
                         </div>
                         <div>
